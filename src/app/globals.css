@@ -1,0 +1,205 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #faf8f3;
+  --color-sand: #ede8de;
+  --color-olive: #526747;
+  --color-forest: #263d30;
+  --color-ink: #202420;
+  --color-leaf: #8bae4f;
+  --color-muted: #5d6459;
+
+  --font-serif: var(--font-newsreader), Georgia, serif;
+  --font-sans: var(--font-hanken), system-ui, sans-serif;
+
+  --animate-rise: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:root {
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.24, 1);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-olive);
+  outline-offset: 3px;
+  border-radius: 6px;
+  transition: outline-offset 150ms var(--ease-soft);
+}
+
+/* Reveal ao entrar na viewport (classe .motion só existe com JS e sem movimento reduzido). */
+.motion [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 16px, 0);
+  transition:
+    opacity 700ms var(--ease-soft),
+    transform 700ms var(--ease-soft);
+  transition-delay: calc(var(--d, 0) * 90ms);
+}
+.motion [data-reveal="zoom"] {
+  transform: translate3d(0, 16px, 0) scale(0.98);
+}
+.motion [data-reveal="lift"] {
+  transform: translate3d(0, 28px, 0);
+}
+.motion [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+/* O clip fica no filho: o IntersectionObserver ignora alvos com clip-path fechado. */
+.motion [data-reveal="clip"] {
+  opacity: 1;
+  transform: none;
+}
+.motion [data-reveal="clip"] > * {
+  display: inline-block;
+  clip-path: inset(-20% -20% 100% -20%);
+  transform: translate3d(0, 24px, 0);
+  transition:
+    clip-path 900ms var(--ease-soft),
+    transform 900ms var(--ease-soft);
+  transition-delay: inherit;
+}
+.motion [data-reveal="clip"].is-in > * {
+  clip-path: inset(-20%);
+  transform: none;
+}
+
+/* Botões: feedback de toque/clique. */
+.press {
+  transition:
+    background-color 200ms var(--ease-soft),
+    color 200ms var(--ease-soft),
+    box-shadow 200ms var(--ease-soft),
+    transform 200ms var(--ease-soft),
+    scale 200ms var(--ease-soft);
+}
+.press:active {
+  transform: scale(0.97);
+}
+
+/* Links de navegação: sublinhado que cresce da esquerda. */
+.link-u {
+  position: relative;
+}
+.link-u::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -4px 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 250ms var(--ease-soft);
+}
+.link-u:hover::after,
+.link-u:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* Cards do cardápio: tilt 3D sutil (variáveis --rx/--ry definidas pelo mouse em Menu.tsx). */
+.tilt {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translate3d(0, var(--lift, 0px), 0);
+  transition:
+    transform 300ms var(--ease-soft),
+    box-shadow 300ms var(--ease-soft);
+}
+.tilt-img {
+  transition: transform 500ms var(--ease-soft);
+}
+@media (hover: hover) and (pointer: fine) {
+  .tilt:hover {
+    --lift: -4px;
+    box-shadow: 0 24px 40px -26px rgb(38 61 48 / 0.45);
+    transition-duration: 150ms, 300ms;
+  }
+  .tilt:hover .tilt-img {
+    transform: scale(1.03);
+  }
+}
+
+/* FAQ: resposta surge ao abrir. */
+.faq[open] .faq-a {
+  animation: faq-in 250ms var(--ease-soft);
+}
+@keyframes faq-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+/* Parallax via scroll-driven animations: roda fora da thread principal, sem listener de scroll.
+   Navegadores sem suporte ficam com a imagem estática. Só no desktop. */
+@supports (animation-timeline: view()) {
+  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+    .parallax-hero {
+      animation: parallax-hero linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 100vh;
+    }
+    .parallax-soft {
+      animation: parallax-soft linear both;
+      animation-timeline: view();
+    }
+  }
+}
+@keyframes parallax-hero {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.06);
+  }
+  to {
+    transform: translate3d(0, 6%, 0) scale(1.06);
+  }
+}
+@keyframes parallax-soft {
+  from {
+    transform: translate3d(0, -3%, 0) scale(1.08);
+  }
+  to {
+    transform: translate3d(0, 3%, 0) scale(1.08);
+  }
+}
+
+.on-dark :focus-visible {
+  outline-color: var(--color-leaf);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .tilt,
+  .tilt-img,
+  .press:active {
+    transform: none !important;
+  }
+}

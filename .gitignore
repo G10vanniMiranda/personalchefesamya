@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+.env*
+*.log
+.DS_Store
+
+# Materiais brutos da cliente (prints e originais). Os recortes usados pela página ficam em src/assets/img.
+/imagens/
